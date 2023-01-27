@@ -1,9 +1,10 @@
 import { initializeApp } from 'firebase/app';
 import {
-	addDoc,
 	collection,
+	doc,
 	Firestore,
 	getFirestore,
+	setDoc,
 } from 'firebase/firestore';
 
 const getDbConnection = (): Firestore => {
@@ -20,13 +21,14 @@ const getDbConnection = (): Firestore => {
 	return getFirestore(app);
 };
 
-export const saveCards = (cards: unknown[]) => {
+export const saveCards = (cards: { uid: string }[]) => {
 	const db = getDbConnection();
 	const collectionRef = collection(db, 'cards');
 
 	cards.forEach(async (card) => {
 		try {
-			const docRef = await addDoc(collectionRef, card);
+			const docRef = doc(collectionRef, card.uid);
+			await setDoc(docRef, card);
 			console.log('Document written with ID: ', docRef.id);
 		} catch (e) {
 			console.error('Error adding document: ', e);
