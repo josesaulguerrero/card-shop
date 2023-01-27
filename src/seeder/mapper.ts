@@ -1,6 +1,5 @@
 import { v4 as uuid } from 'uuid';
 
-import { Card } from '../app/modules/core/domain/entities/card.model.js';
 import { Pokemon } from './types.js';
 
 const generatePrice = (): number => {
@@ -10,7 +9,7 @@ const generatePrice = (): number => {
 	return Math.floor(Math.random() * (MAX_PRICE - MIN_PRICE + 1) + MIN_PRICE);
 };
 
-export const mapPokemonToCard = (pokemon: Pokemon): Card[] => {
+export const mapPokemonToCard = (pokemon: Pokemon) => {
 	const CARD_AMOUNT = 5;
 	const cardInstance = {
 		name: pokemon.name,

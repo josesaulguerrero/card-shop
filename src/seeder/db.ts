@@ -6,8 +6,6 @@ import {
 	getFirestore,
 } from 'firebase/firestore';
 
-import { Card } from '../app/modules/core/domain/entities/card.model';
-
 const getDbConnection = (): Firestore => {
 	// Initialize Firebase
 	const app = initializeApp({
@@ -22,7 +20,7 @@ const getDbConnection = (): Firestore => {
 	return getFirestore(app);
 };
 
-export const saveCards = (cards: Card[]) => {
+export const saveCards = (cards: unknown[]) => {
 	const db = getDbConnection();
 	const collectionRef = collection(db, 'cards');
 
