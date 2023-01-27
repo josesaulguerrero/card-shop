@@ -12,8 +12,7 @@ const generatePrice = (): number => {
 
 export const mapPokemonToCard = (pokemon: Pokemon): Card[] => {
 	const CARD_AMOUNT = 5;
-	const cardInstance: Card = {
-		uid: uuid(),
+	const cardInstance = {
 		name: pokemon.name,
 		description:
 			pokemon.description?.flavor_text_entries
@@ -26,5 +25,8 @@ export const mapPokemonToCard = (pokemon: Pokemon): Card[] => {
 		price: generatePrice(),
 	};
 
-	return Array.from({ length: CARD_AMOUNT }).map(() => cardInstance);
+	return Array.from({ length: CARD_AMOUNT }).map(() => ({
+		...cardInstance,
+		uid: uuid(),
+	}));
 };
