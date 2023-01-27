@@ -1,0 +1,13 @@
+{
+	"name": "seeder",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "index.js",
+	"scripts": {},
+	"keywords": [],
+	"license": "ISC",
+	"devDependencies": {
+		"axios": "^1.2.5",
+		"firebase": "^9.16.0"
+	}
+}
