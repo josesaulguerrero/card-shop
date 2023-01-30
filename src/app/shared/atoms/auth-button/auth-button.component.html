@@ -1,0 +1,13 @@
+<button class="auth-button">
+	<app-icon
+		class="auth-platform-icon"
+		[src]="authPlatform.iconSrc"
+		[altText]="authPlatform.name"
+		[width]="30"
+		[height]="30"
+	></app-icon>
+	<app-text
+		class="auth-button-text"
+		text="Sign in with {{ authPlatform.name }}"
+	></app-text>
+</button>
