@@ -3,7 +3,6 @@ import { from, map, Observable } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import {
-	arrayUnion,
 	collectionData,
 	CollectionReference,
 	doc,
@@ -14,22 +13,18 @@ import {
 	where,
 } from '@angular/fire/firestore';
 
-import { Card } from '../domain/entities/card.model';
-import { HistoryChange } from '../domain/entities/historyChange.model';
+import { Card } from '../../domain/entities/card.model';
 
 @Injectable({
 	providedIn: 'root',
 })
-export class CardsService {
-	private static readonly CARDS_COLLECTION = 'cards';
+export class DbCardsService {
+	private readonly CARDS_COLLECTION = 'cards';
 
 	private readonly cardsCollectionRef: CollectionReference;
 
 	public constructor(private readonly _db: Firestore) {
-		this.cardsCollectionRef = collection(
-			this._db,
-			CardsService.CARDS_COLLECTION,
-		);
+		this.cardsCollectionRef = collection(this._db, this.CARDS_COLLECTION);
 	}
 
 	public get(): Observable<Card[]> {
@@ -48,22 +43,7 @@ export class CardsService {
 		) as Observable<Card>;
 	}
 
-	public addHistoryChange(
-		uid: string,
-		change: HistoryChange,
-	): Observable<void> {
-		return this.update(uid, {
-			history: arrayUnion(change),
-		});
-	}
-
-	public setInactiveForSale(uid: string): Observable<void> {
-		return this.update(uid, {
-			activeForSale: false,
-		});
-	}
-
-	private update(uid: string, changes: UpdateData<Card>): Observable<void> {
+	public update(uid: string, changes: UpdateData<Card>): Observable<void> {
 		const docRef = doc(
 			this.cardsCollectionRef,
 			uid,

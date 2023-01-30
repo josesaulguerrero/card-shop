@@ -1,52 +1,32 @@
 import * as _ from 'lodash';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import { Injectable } from '@angular/core';
 import { Auth, User as GoogleUser } from '@angular/fire/auth';
-import {
-	arrayRemove,
-	arrayUnion,
-	collection,
-	collectionData,
-	CollectionReference,
-	doc,
-	Firestore,
-	query,
-	UpdateData,
-	updateDoc,
-	where,
-} from '@angular/fire/firestore';
+import { arrayRemove, arrayUnion } from '@angular/fire/firestore';
 
-import { Card } from '../domain/entities/card.model';
-import { Recharge } from '../domain/entities/recharge.model';
-import { User } from '../domain/entities/user.model';
-import { ISODate } from '../domain/valueObject/date.model';
+import { Card } from '../../domain/entities/card.model';
+import { Recharge } from '../../domain/entities/recharge.model';
+import { User } from '../../domain/entities/user.model';
+import { HistoryType } from '../../domain/enums/historyType.model';
+import { ISODate } from '../../domain/valueObject/date.model';
+import { DbUsersService } from '../db/db-users.service';
 import { CardsService } from './cards.service';
 import { RechargesService } from './recharges.service';
-import { HistoryType } from '../domain/enums/historyType.model';
 
 @Injectable({
 	providedIn: 'root',
 })
-export class UsersService {
+export class CurrentUserService {
 	private _currentUser: User | null = null;
 
-	private readonly USERS_COLLECTION_NAME = 'users';
-
-	private readonly usersCollectionRef: CollectionReference<User>;
-
 	public constructor(
+		private readonly _dbUsersService: DbUsersService,
 		private readonly _rechargesService: RechargesService,
 		private readonly _cardsService: CardsService,
 		private readonly _fireAuth: Auth,
-		private readonly _db: Firestore,
-	) {
-		this.usersCollectionRef = collection(
-			this._db,
-			this.USERS_COLLECTION_NAME,
-		) as CollectionReference<User>;
-	}
+	) {}
 
 	public get currentUser(): User {
 		return (
@@ -82,30 +62,14 @@ export class UsersService {
 		};
 	};
 
-	public get(): Observable<User[]> {
-		const getQuery = query(this.usersCollectionRef);
-		return collectionData(getQuery);
-	}
-
-	public getById(uid: string): Observable<User | null> {
-		const getByIdQuery = query(
-			this.usersCollectionRef,
-			where('uid', '==', uid),
-		);
-
-		return collectionData<User>(getByIdQuery).pipe(
-			map((results): User | null => results.at(0) ?? null),
-		);
-	}
-
 	public addCardToDeck(card: Card): Observable<void> {
-		return this.update(this.currentUser.uid, {
+		return this._dbUsersService.update(this.currentUser.uid, {
 			deck: arrayUnion(card),
 		});
 	}
 
 	public removeCardFromDeck(card: Card): Observable<void> {
-		return this.update(this.currentUser.uid, {
+		return this._dbUsersService.update(this.currentUser.uid, {
 			deck: arrayRemove(card),
 		});
 	}
@@ -126,7 +90,7 @@ export class UsersService {
 			switchMap((isValid) => {
 				if (!isValid) return of();
 
-				return this.update(this.currentUser.uid, {
+				return this._dbUsersService.update(this.currentUser.uid, {
 					balance: this.currentUser.balance + recharge.amount,
 					recharges: arrayUnion(recharge),
 				});
@@ -142,7 +106,7 @@ export class UsersService {
 						'Your balance is not enough to subtract this amount.',
 					);
 
-				return this.update(this.currentUser.uid, {
+				return this._dbUsersService.update(this.currentUser.uid, {
 					balance: this.currentUser.balance - amount,
 				});
 			}),
@@ -186,16 +150,10 @@ export class UsersService {
 				});
 			}),
 			switchMap(() => {
-				return this.update(recipientUid, {
+				return this._dbUsersService.update(recipientUid, {
 					deck: arrayUnion(card),
 				});
 			}),
 		);
-	}
-
-	private update(uid: string, changes: UpdateData<User>): Observable<void> {
-		const docRef = doc(this.usersCollectionRef, uid);
-
-		return from(updateDoc<User>(docRef, changes));
 	}
 }
