@@ -1,4 +1,5 @@
 import { collection, DocumentReference } from 'firebase/firestore';
+import * as _ from 'lodash';
 import { from, map, Observable } from 'rxjs';
 
 import { Injectable } from '@angular/core';
@@ -15,6 +16,11 @@ import {
 
 import { Card } from '../../domain/entities/card.model';
 
+export type CardGroup = {
+	name: string;
+	cards: Card[];
+};
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -27,20 +33,37 @@ export class DbCardsService {
 		this.cardsCollectionRef = collection(this._db, this.CARDS_COLLECTION);
 	}
 
-	public get(): Observable<Card[]> {
+	public get(): Observable<CardGroup[]> {
 		const getQuery = query(this.cardsCollectionRef);
-		return collectionData(getQuery) as Observable<Card[]>;
+		return (collectionData(getQuery) as Observable<Card[]>).pipe(
+			map((cards: Card[]) => {
+				return _.chain(cards)
+					.groupBy((card) => card.name)
+					.map(
+						(value, key): CardGroup => ({
+							name: key,
+							cards: value,
+						}),
+					)
+					.value();
+			}),
+		);
 	}
 
-	public getById(uid: string): Observable<Card> {
-		const getByIdQuery = query(
+	public getByName(name: string): Observable<CardGroup> {
+		const getByNameQuery = query(
 			this.cardsCollectionRef,
-			where('uid', '==', uid),
+			where('name', '==', name),
 		);
 
-		return collectionData(getByIdQuery).pipe(
-			map((results) => results.at(0) ?? {}),
-		) as Observable<Card>;
+		return (collectionData(getByNameQuery) as Observable<Card[]>).pipe(
+			map(
+				(cards): CardGroup => ({
+					name,
+					cards,
+				}),
+			),
+		);
 	}
 
 	public update(uid: string, changes: UpdateData<Card>): Observable<void> {
