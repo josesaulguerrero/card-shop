@@ -1,4 +1,4 @@
-import { from, map, Observable } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import {
@@ -8,6 +8,7 @@ import {
 	doc,
 	Firestore,
 	query,
+	setDoc,
 	UpdateData,
 	updateDoc,
 	where,
@@ -43,6 +44,14 @@ export class DbUsersService {
 
 		return collectionData<User>(getByIdQuery).pipe(
 			map((results): User | null => results.at(0) ?? null),
+		);
+	}
+
+	public register(user: User): Observable<User> {
+		const docRef = doc(this.usersCollectionRef, user.uid);
+
+		return from(setDoc(docRef, user)).pipe(
+			switchMap(() => this.getById(docRef.id) as Observable<User>),
 		);
 	}
 
