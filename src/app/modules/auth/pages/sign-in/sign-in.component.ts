@@ -56,6 +56,6 @@ export class SignInComponent {
 	}
 
 	private redirectToApp(): void {
-		// this._router.navigateByUrl('app/store');
+		this._router.navigateByUrl('shop');
 	}
 }
