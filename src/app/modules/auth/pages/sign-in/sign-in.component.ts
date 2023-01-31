@@ -1,13 +1,9 @@
 import { Component } from '@angular/core';
-import { GoogleAuthProvider } from '@angular/fire/auth';
+import { GithubAuthProvider, GoogleAuthProvider } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 
-import { AuthenticationService } from '../../../../modules/core/services/auth/authentication.service';
-import { AuthPlatform } from '../../../../shared/atoms/auth-button/auth-button.component';
-
-type LoginPlatform = AuthPlatform & {
-	onLogin: () => void;
-};
+import { LoginPlatform } from '../../models/auth.model';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
 	selector: 'app-sign-in',
@@ -27,20 +23,27 @@ export class SignInComponent {
 				name: 'Google',
 				onLogin: () => this.signInWithGoogle(),
 			},
+			{
+				iconSrc: 'https://i.postimg.cc/YqZfcRJD/image.png',
+				name: 'Github',
+				onLogin: () => this.signInWithGithub(),
+			},
 		];
 	}
 
 	public signInWithGoogle(): void {
 		this._authService
 			.signInWithPopup(new GoogleAuthProvider())
-			.subscribe(() => {
-				this._router.navigateByUrl('app/store');
-			});
+			.subscribe(() => this.redirectToApp());
 	}
 
-	public onLogin(platformName: string): void {
-		this.authPlatforms
-			.find((platform) => platform.name === platformName)
-			?.onLogin();
+	public signInWithGithub(): void {
+		this._authService
+			.signInWithPopup(new GithubAuthProvider())
+			.subscribe(() => this.redirectToApp());
+	}
+
+	private redirectToApp(): void {
+		this._router.navigateByUrl('app/store');
 	}
 }

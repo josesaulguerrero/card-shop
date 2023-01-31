@@ -1,20 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-import { AuthPlatform } from '../../atoms/auth-button/auth-button.component';
+import { Component } from '@angular/core';
 
 @Component({
 	selector: 'app-sign-in-form',
 	templateUrl: './sign-in-form.component.html',
 	styleUrls: ['./sign-in-form.component.scss'],
 })
-export class SignInFormComponent {
-	@Input()
-	public authPlatforms!: AuthPlatform[];
-
-	@Output()
-	public login: EventEmitter<string>;
-
-	public constructor() {
-		this.login = new EventEmitter();
-	}
-}
+export class SignInFormComponent {}

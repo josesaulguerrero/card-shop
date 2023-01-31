@@ -3,7 +3,7 @@
 	height: 100%;
 }
 
-.auth-platforms {
+.sign-in-form {
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -14,21 +14,4 @@
 	padding: 20px;
 	box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2);
 	border-radius: 10px;
-}
-
-.auth-buttons {
-	flex: 1;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-start;
-	gap: 30px;
-}
-
-.auth-button {
-	color: white;
-	font-size: 16px;
-	background-color: rgb(5, 100, 209);
-	border-radius: 5px;
 }

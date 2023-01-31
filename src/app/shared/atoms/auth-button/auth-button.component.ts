@@ -1,9 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-export type AuthPlatform = {
-	name: string;
-	iconSrc: string;
-};
+import { AuthPlatform } from '../../../modules/auth/models/auth.model';
 
 @Component({
 	selector: 'app-auth-button',

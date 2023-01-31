@@ -4,13 +4,11 @@ import { Injectable } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { AuthProvider, signInWithPopup, signOut } from '@firebase/auth';
 
-import { User } from '../../domain/entities/user.model';
-import { CurrentUserService } from '../business/current-user.service';
-import { DbUsersService } from '../db/db-users.service';
+import { User } from '../../core/domain/entities/user.model';
+import { CurrentUserService } from '../../core/services/business/current-user.service';
+import { DbUsersService } from '../../core/services/db/db-users.service';
 
-@Injectable({
-	providedIn: 'root',
-})
+@Injectable()
 export class AuthenticationService {
 	public constructor(
 		private readonly _fireAuth: Auth,
