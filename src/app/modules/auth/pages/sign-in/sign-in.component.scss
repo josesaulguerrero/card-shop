@@ -19,7 +19,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-	gap: 30px;
+	gap: 20px;
 }
 
 .auth-button {
@@ -34,4 +34,9 @@
 
 .auth-button.Github {
 	background-color: black;
+}
+
+.auth-error {
+	font-size: 14px;
+	color: rgb(245, 60, 60);
 }

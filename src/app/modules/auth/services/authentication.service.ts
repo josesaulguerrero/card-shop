@@ -1,8 +1,15 @@
-import { from, Observable, of, switchMap } from 'rxjs';
+import { from, Observable, of, switchMap, tap } from 'rxjs';
 
 import { Injectable } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
-import { AuthProvider, signInWithPopup, signOut } from '@firebase/auth';
+import {
+	Auth,
+	AuthProvider,
+	GithubAuthProvider,
+	GoogleAuthProvider,
+	signInWithPopup,
+	signOut,
+	User as GoogleUser,
+} from '@angular/fire/auth';
 
 import { User } from '../../core/domain/entities/user.model';
 import { CurrentUserService } from '../../core/services/business/current-user.service';
@@ -18,21 +25,35 @@ export class AuthenticationService {
 
 	public signInWithPopup(authProvider: AuthProvider): Observable<User> {
 		return from(signInWithPopup(this._fireAuth, authProvider)).pipe(
+			tap(console.log),
 			switchMap((credentials) =>
-				this._dbUsersService.getById(credentials.user.uid).pipe(
-					switchMap((user) => {
-						if (user) return of(user);
-
-						const newUser =
-							this._currentUserService.mapFirebaseUserCredentials(
-								credentials.user,
-							);
-
-						return this._dbUsersService.register(newUser);
-					}),
-				),
+				this.registerUserIfNotRegisteredYet(credentials.user),
 			),
 		);
+	}
+
+	private registerUserIfNotRegisteredYet(user: GoogleUser): Observable<User> {
+		return this._dbUsersService.getById(user.uid).pipe(
+			switchMap((user) => {
+				if (user) return of(user);
+
+				const newUser =
+					this._currentUserService.mapFirebaseUserCredentials(user);
+
+				return this._dbUsersService.register(newUser);
+			}),
+		);
+	}
+
+	private getAuthProviderForId(providerId: string) {
+		switch (providerId) {
+			case GoogleAuthProvider.PROVIDER_ID:
+				return GoogleAuthProvider;
+			case GithubAuthProvider.PROVIDER_ID:
+				return GithubAuthProvider;
+			default:
+				throw new Error(`No provider implemented for ${providerId}`);
+		}
 	}
 
 	public signOut(): Observable<void> {
