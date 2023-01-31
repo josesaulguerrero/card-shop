@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { map, Observable, of, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 

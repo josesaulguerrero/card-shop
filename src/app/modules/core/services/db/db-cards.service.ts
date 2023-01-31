@@ -1,5 +1,5 @@
 import { collection, DocumentReference } from 'firebase/firestore';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { from, map, Observable } from 'rxjs';
 
 import { Injectable } from '@angular/core';
