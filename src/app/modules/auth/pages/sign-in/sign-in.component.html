@@ -1,0 +1,17 @@
+<app-sign-in-form class="login-form">
+	<section class="auth-buttons">
+		<app-auth-button
+			*ngFor="let platform of authPlatforms"
+			class="auth-button {{ platform.name }}"
+			[authPlatform]="platform"
+			(click)="platform.onLogin()"
+		></app-auth-button>
+	</section>
+	<section class="auth-errors" *ngIf="errors.length > 0">
+		<app-text
+			class="auth-error"
+			*ngFor="let error of errors"
+			[text]="error"
+		></app-text>
+	</section>
+</app-sign-in-form>

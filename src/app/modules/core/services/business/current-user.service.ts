@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { map, Observable, of, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -86,9 +86,12 @@ export class CurrentUserService {
 				recharge,
 			);
 
-		return of(validRecharge).pipe(
-			switchMap((isValid) => {
-				if (!isValid) return of();
+		return new Observable().pipe(
+			switchMap(() => {
+				if (!validRecharge)
+					throw new Error(
+						"You don't have enough credits to perform a balance recharge.",
+					);
 
 				return this._dbUsersService.update(this.currentUser.uid, {
 					balance: this.currentUser.balance + recharge.amount,
