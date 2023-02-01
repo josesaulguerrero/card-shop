@@ -35,7 +35,11 @@ export class DbCardsService {
 	}
 
 	public get(): Observable<CardGroup[]> {
-		const getQuery = query(this.cardsCollectionRef, limit(10));
+		const getQuery = query(
+			this.cardsCollectionRef,
+			where('activeForSale', '==', true),
+			limit(10),
+		);
 		return (collectionData(getQuery) as Observable<Card[]>).pipe(
 			map((cards: Card[]) => {
 				const groups = groupBy(cards, (card) => card.name);
