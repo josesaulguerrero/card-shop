@@ -1,0 +1,20 @@
+<article class="pokemon-card">
+	<app-image
+		class="card-image"
+		[src]="pokemon.imageUrl"
+		[altText]="pokemon.name"
+		[width]="100"
+		[height]="100"
+	></app-image>
+	<app-title class="card-name" size="small" [text]="pokemon.name"></app-title>
+	<app-text class="card-description" [text]="pokemon.description"></app-text>
+	<app-text
+		class="card-available"
+		text="{{ available }} available "
+	></app-text>
+	<app-button
+		class="card-button"
+		(buttonClick)="onBuyCard()"
+		text="Buy card"
+	></app-button>
+</article>

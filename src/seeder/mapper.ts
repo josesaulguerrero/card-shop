@@ -20,7 +20,7 @@ export const mapPokemonToCard = (pokemon: Pokemon) => {
 			`${pokemon.name} doesn't have a description yet.`,
 		activeForSale: true,
 		history: [],
-		imageUrl: pokemon.sprites.front_default,
+		imageUrl: pokemon.sprites.other['official-artwork'].front_default,
 		price: generatePrice(),
 	};
 

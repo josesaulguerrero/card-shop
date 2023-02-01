@@ -1,0 +1,16 @@
+.button {
+	width: 100%;
+	height: 100%;
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	background-color: inherit;
+	border-radius: inherit;
+	border: inherit;
+	transition: scale 0.2s;
+}
+
+.button:hover {
+	scale: 1.05;
+	cursor: pointer;
+}

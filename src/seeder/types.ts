@@ -18,6 +18,15 @@ export interface Sprites {
 	front_female: null;
 	front_shiny: string;
 	front_shiny_female: null;
+	other: Other;
+}
+
+export interface Other {
+	'official-artwork': OfficialArtwork;
+}
+
+export interface OfficialArtwork {
+	front_default: string;
 }
 
 export interface Stat {

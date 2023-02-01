@@ -1,1 +1,7 @@
-<p>shop works!</p>
+<section class="shop">
+	<app-pokemon-card
+		class="card"
+		*ngFor="let card of cardGroups"
+		[card]="card"
+	></app-pokemon-card>
+</section>

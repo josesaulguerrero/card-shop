@@ -1,11 +1,9 @@
-import { from, Observable, of, switchMap, tap } from 'rxjs';
+import { from, Observable, of, switchMap } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import {
 	Auth,
 	AuthProvider,
-	GithubAuthProvider,
-	GoogleAuthProvider,
 	signInWithPopup,
 	signOut,
 	User as GoogleUser,
@@ -25,7 +23,6 @@ export class AuthenticationService {
 
 	public signInWithPopup(authProvider: AuthProvider): Observable<User> {
 		return from(signInWithPopup(this._fireAuth, authProvider)).pipe(
-			tap(console.log),
 			switchMap((credentials) =>
 				this.registerUserIfNotRegisteredYet(credentials.user),
 			),
@@ -43,17 +40,6 @@ export class AuthenticationService {
 				return this._dbUsersService.register(newUser);
 			}),
 		);
-	}
-
-	private getAuthProviderForId(providerId: string) {
-		switch (providerId) {
-			case GoogleAuthProvider.PROVIDER_ID:
-				return GoogleAuthProvider;
-			case GithubAuthProvider.PROVIDER_ID:
-				return GithubAuthProvider;
-			default:
-				throw new Error(`No provider implemented for ${providerId}`);
-		}
 	}
 
 	public signOut(): Observable<void> {

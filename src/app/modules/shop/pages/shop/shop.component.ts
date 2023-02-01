@@ -1,6 +1,11 @@
+import { Observable } from 'rxjs';
+
 import { Component } from '@angular/core';
 
-import { DbCardsService } from '../../../../modules/core/services/db/db-cards.service';
+import {
+	CardGroup,
+	DbCardsService,
+} from '../../../../modules/core/services/db/db-cards.service';
 
 @Component({
 	selector: 'app-shop',
@@ -8,5 +13,11 @@ import { DbCardsService } from '../../../../modules/core/services/db/db-cards.se
 	styleUrls: ['./shop.component.scss'],
 })
 export class ShopComponent {
-	public constructor(private readonly _dbCardsService: DbCardsService) {}
+	public cardGroups: CardGroup[] = [];
+
+	public constructor(private readonly _dbCardsService: DbCardsService) {
+		_dbCardsService.get().subscribe((groups) => {
+			this.cardGroups = groups.sort((a, b) => (a.name < b.name ? -1 : 1));
+		});
+	}
 }
