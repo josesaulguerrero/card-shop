@@ -1,4 +1,4 @@
-import { from, Observable, of, switchMap } from 'rxjs';
+import { from, Observable, of, switchMap, tap } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import {
@@ -12,11 +12,13 @@ import {
 import { User } from '../../core/domain/entities/user.model';
 import { CurrentUserService } from '../../core/services/business/current-user.service';
 import { DbUsersService } from '../../core/services/db/db-users.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthenticationService {
 	public constructor(
 		private readonly _fireAuth: Auth,
+		private readonly _router: Router,
 		private readonly _dbUsersService: DbUsersService,
 		private readonly _currentUserService: CurrentUserService,
 	) {}
@@ -43,6 +45,10 @@ export class AuthenticationService {
 	}
 
 	public signOut(): Observable<void> {
-		return from(signOut(this._fireAuth));
+		return from(signOut(this._fireAuth)).pipe(
+			tap(() => {
+				this._router.navigateByUrl('/');
+			}),
+		);
 	}
 }

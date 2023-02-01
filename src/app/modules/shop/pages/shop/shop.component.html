@@ -1,3 +1,9 @@
+<app-navbar
+	class="nav-bar"
+	[user]="currentUser"
+	(logout)="onLogout()"
+></app-navbar>
+
 <section class="shop">
 	<app-pokemon-card
 		class="card"
