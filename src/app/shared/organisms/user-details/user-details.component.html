@@ -1,0 +1,17 @@
+<app-image
+	class="user-image"
+	[src]="user.avatar"
+	[altText]="user.username"
+	[width]="80"
+	[height]="80"
+></app-image>
+<app-title
+	class="user-name"
+	size="medium"
+	[text]="user.username | titlecase"
+></app-title>
+<app-text class="user-email" [text]="user.email"></app-text>
+<app-text
+	class="user-balance"
+	text="Current balance: {{ (user.balance | currency : 'USD')! }}"
+></app-text>

@@ -17,6 +17,23 @@
 	gap: 10px;
 }
 
+.user {
+	width: fit-content;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: inherit;
+	text-decoration: none;
+	color: inherit;
+}
+
+.user-name {
+	max-width: 100px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
 .log-out {
 	padding: 5px;
 	border: 2px solid rgb(103, 103, 246);

@@ -30,6 +30,14 @@ const routes: Routes = [
 		...canActivate(() => redirectUnauthorizedTo('auth')),
 	},
 	{
+		path: 'user',
+		loadChildren: () =>
+			import('./modules/user/user.module').then(
+				(module) => module.UserModule,
+			),
+		...canActivate(() => redirectUnauthorizedTo('auth')),
+	},
+	{
 		path: '**',
 		redirectTo: 'auth',
 	},

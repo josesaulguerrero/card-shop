@@ -31,13 +31,17 @@ export class AuthenticationService {
 		);
 	}
 
-	private registerUserIfNotRegisteredYet(user: GoogleUser): Observable<User> {
-		return this._dbUsersService.getById(user.uid).pipe(
+	private registerUserIfNotRegisteredYet(
+		credentials: GoogleUser,
+	): Observable<User> {
+		return this._dbUsersService.getById(credentials.uid).pipe(
 			switchMap((user) => {
 				if (user) return of(user);
 
 				const newUser =
-					this._currentUserService.mapFirebaseUserCredentials(user);
+					this._currentUserService.mapFirebaseUserCredentials(
+						credentials,
+					);
 
 				return this._dbUsersService.register(newUser);
 			}),
