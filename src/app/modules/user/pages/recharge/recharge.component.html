@@ -17,4 +17,21 @@
 		[disabled]="rechargeForm.invalid"
 		(buttonClick)="onCommitRecharge()"
 	></app-button>
+	<section class="errors">
+		<app-text
+			class="error"
+			*ngFor="let error of errors"
+			[text]="error"
+		></app-text>
+		<app-text
+			*ngIf="rechargeForm.touched && rechargeForm.hasError('min')"
+			class="error"
+			text="You can't make a recharge under 0 USD."
+		></app-text>
+		<app-text
+			*ngIf="rechargeForm.touched && rechargeForm.hasError('max')"
+			class="error"
+			text="You can't make a recharge over 200 USD."
+		></app-text>
+	</section>
 </form>

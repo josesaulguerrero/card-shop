@@ -14,14 +14,12 @@ export class RechargeComponent implements OnInit {
 
 	public rechargeForm: FormGroup;
 
+	public errors: string[] = [];
+
 	public constructor(private readonly _currentUser: CurrentUserService) {
 		this.rechargeForm = new FormGroup({
 			amount: new FormControl(0, {
-				validators: [
-					Validators.required,
-					Validators.min(1),
-					Validators.max(200),
-				],
+				validators: [Validators.min(1), Validators.max(200)],
 				nonNullable: true,
 			}),
 		});
@@ -36,8 +34,19 @@ export class RechargeComponent implements OnInit {
 	}
 
 	public onCommitRecharge(): void {
+		if (this.rechargeForm.invalid) return;
+
 		this._currentUser
 			.rechargeBalance(this.rechargeForm.value['amount'])
-			.subscribe({});
+			.subscribe({
+				next: () => {
+					this.rechargeForm.reset();
+				},
+				error: (error: Error) => {
+					// this.errors = [];
+					console.log(error);
+					this.errors.push(error.message);
+				},
+			});
 	}
 }
