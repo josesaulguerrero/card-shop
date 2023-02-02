@@ -1,11 +1,19 @@
-<app-navbar class="nav-bar" [user]="user" (logout)="onLogout()"></app-navbar>
-<section class="layout">
-	<app-user-details [user]="user"></app-user-details>
-	<section class="links">
-		<a routerLink="./deck" routerLinkActive="active-link">Your deck</a>
-		<a routerLink="./recharge" routerLinkActive="active-link">Recharge</a>
+<ng-container>
+	<app-navbar
+		class="nav-bar"
+		[user]="user"
+		(logout)="onLogout()"
+	></app-navbar>
+	<section class="layout">
+		<app-user-details *ngIf="user" [user]="user"></app-user-details>
+		<section class="links">
+			<a routerLink="./deck" routerLinkActive="active-link">Your deck</a>
+			<a routerLink="./recharge" routerLinkActive="active-link"
+				>Recharge</a
+			>
+		</section>
+		<section class="nested-route">
+			<router-outlet></router-outlet>
+		</section>
 	</section>
-	<section class="nested-route">
-		<router-outlet></router-outlet>
-	</section>
-</section>
+</ng-container>

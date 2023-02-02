@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { AuthenticationService } from '../../../../modules/auth/services/authentication.service';
 import { User } from '../../../../modules/core/domain/entities/user.model';
@@ -9,14 +9,20 @@ import { CurrentUserService } from '../../../../modules/core/services/business/c
 	templateUrl: './layout.component.html',
 	styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent {
-	public user: User;
+export class LayoutComponent implements OnInit {
+	public user!: User | null;
 
 	public constructor(
 		private readonly _currentUser: CurrentUserService,
 		private readonly _authService: AuthenticationService,
-	) {
-		this.user = this._currentUser.currentUser;
+	) {}
+
+	public ngOnInit(): void {
+		this._currentUser.currentUser.subscribe({
+			next: (user) => {
+				this.user = user;
+			},
+		});
 	}
 
 	public onLogout(): void {

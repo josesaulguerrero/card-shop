@@ -9,11 +9,15 @@ export class ButtonComponent {
 	@Input()
 	public text: string;
 
+	@Input()
+	public disabled!: boolean;
+
 	@Output()
 	public buttonClick: EventEmitter<MouseEvent>;
 
 	public constructor() {
-		this.text = 'Click Me';
+		this.text ??= 'Click Me';
+		this.disabled ??= false;
 		this.buttonClick = new EventEmitter();
 	}
 

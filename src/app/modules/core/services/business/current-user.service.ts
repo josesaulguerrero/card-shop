@@ -1,5 +1,5 @@
 import * as _ from 'lodash-es';
-import { map, Observable, of, switchMap } from 'rxjs';
+import { Observable, switchMap, take, tap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import { Injectable } from '@angular/core';
@@ -19,29 +19,17 @@ import { RechargesService } from './recharges.service';
 	providedIn: 'root',
 })
 export class CurrentUserService {
-	private _currentUser: User | null = null;
+	public currentUser: Observable<User>;
 
 	public constructor(
 		private readonly _dbUsersService: DbUsersService,
 		private readonly _rechargesService: RechargesService,
 		private readonly _cardsService: CardsService,
 		private readonly _fireAuth: Auth,
-	) {}
-
-	public get currentUser(): User {
-		return (
-			this._currentUser ??
-			this.mapFirebaseUserCredentials(this._fireAuth.currentUser)
-		);
-	}
-
-	public set currentUser(user: User) {
-		if (this._currentUser)
-			throw new Error(
-				'You cannot reset the current user since it already exists.',
-			);
-
-		this._currentUser = user;
+	) {
+		this.currentUser = _dbUsersService.getById(
+			this._fireAuth.currentUser?.uid as string,
+		) as Observable<User>;
 	}
 
 	public mapFirebaseUserCredentials = (
@@ -63,76 +51,87 @@ export class CurrentUserService {
 	};
 
 	public addCardToDeck(card: Card): Observable<void> {
-		return this._dbUsersService.update(this.currentUser.uid, {
-			deck: arrayUnion(card),
-		});
+		return this.currentUser.pipe(
+			switchMap((user) =>
+				this._dbUsersService.update(user.uid, {
+					deck: arrayUnion(card),
+				}),
+			),
+		);
 	}
 
 	public removeCardFromDeck(card: Card): Observable<void> {
-		return this._dbUsersService.update(this.currentUser.uid, {
-			deck: arrayRemove(card),
-		});
+		return this.currentUser.pipe(
+			switchMap((user) =>
+				this._dbUsersService.update(user.uid, {
+					deck: arrayRemove(card),
+				}),
+			),
+		);
 	}
 
-	private rechargeBalance(amount: number): Observable<void> {
+	public rechargeBalance(amount: number): Observable<void> {
 		const recharge: Recharge = {
 			uid: uuid(),
-			performedAt: ISODate.now(),
+			performedAt: ISODate.now().ISOString,
 			amount,
 		};
-		const validRecharge =
-			this._rechargesService.userHasEnoughCreditForRecharge(
-				this.currentUser,
-				recharge,
-			);
 
-		return new Observable().pipe(
-			switchMap(() => {
+		return this.currentUser.pipe(
+			take(1),
+			tap((user) => {
+				const validRecharge =
+					this._rechargesService.userHasEnoughCreditForRecharge(
+						user,
+						recharge,
+					);
+
 				if (!validRecharge)
 					throw new Error(
 						"You don't have enough credits to perform a balance recharge.",
 					);
-
-				return this._dbUsersService.update(this.currentUser.uid, {
-					balance: this.currentUser.balance + recharge.amount,
-					recharges: arrayUnion(recharge),
-				});
 			}),
+			switchMap((user) =>
+				this._dbUsersService.update(user.uid, {
+					balance: user.balance + recharge.amount,
+					recharges: arrayUnion(recharge),
+				}),
+			),
 		);
 	}
 
 	public subtractFromBalance(amount: number): Observable<void> {
-		return of(amount).pipe(
-			switchMap((amount) => {
-				if (this.currentUser.balance < amount)
+		return this.currentUser.pipe(
+			tap(({ balance }) => {
+				if (balance < amount)
 					throw new Error(
 						'Your balance is not enough to subtract this amount.',
 					);
-
-				return this._dbUsersService.update(this.currentUser.uid, {
-					balance: this.currentUser.balance - amount,
+			}),
+			switchMap(({ balance, uid }) => {
+				return this._dbUsersService.update(uid, {
+					balance: balance - amount,
 				});
 			}),
 		);
 	}
 
 	public buyCard(card: Card): Observable<void> {
-		return of(card).pipe(
-			map((card) => {
+		return this.currentUser.pipe(
+			tap(({ balance }) => {
 				if (!card.activeForSale)
 					throw new Error('This card is not available for sale.');
-				if (this.currentUser.balance < card.price)
+				if (balance < card.price)
 					throw new Error(
 						'Your balance is not enough to buy this card.',
 					);
-				return card;
 			}),
-			switchMap((card) => {
+			switchMap((user) => {
 				return this._cardsService.setInactiveForSale(card.uid).pipe(
 					switchMap(() =>
 						this._cardsService.addHistoryChange(card.uid, {
 							uid: uuid(),
-							owner: this.currentUser,
+							owner: user,
 							type: HistoryType.GIFT,
 						}),
 					),
@@ -144,11 +143,11 @@ export class CurrentUserService {
 	}
 
 	public giftCardTo(card: Card, recipientUid: string): Observable<void> {
-		return this.removeCardFromDeck(card).pipe(
-			switchMap(() => {
+		return this.currentUser.pipe(
+			switchMap((user) => {
 				return this._cardsService.addHistoryChange(card.uid, {
 					uid: uuid(),
-					owner: this.currentUser,
+					owner: user,
 					type: HistoryType.GIFT,
 				});
 			}),

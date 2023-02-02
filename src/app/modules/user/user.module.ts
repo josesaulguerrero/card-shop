@@ -10,17 +10,21 @@ import { UserRoutingModule } from './user-routing.module';
 import { RouterModule } from '@angular/router';
 import { DeckComponent } from './pages/deck/deck.component';
 import { RechargeComponent } from './pages/recharge/recharge.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
 	declarations: [LayoutComponent, DeckComponent, RechargeComponent],
 	imports: [
 		CommonModule,
 		RouterModule,
+		ReactiveFormsModule,
 		UserRoutingModule,
 		AuthModule,
 		AtomsModule,
 		MoleculesModule,
 		OrganismsModule,
+		SharedModule,
 	],
 })
 export class UserModule {}

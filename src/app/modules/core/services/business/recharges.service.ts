@@ -12,10 +12,10 @@ export class RechargesService {
 		user: User,
 		recharge: Recharge,
 	): boolean {
+		const rechargeDate = new ISODate(recharge.performedAt);
 		const balanceRechargedToday: number = user.recharges
-			.filter((r) =>
-				ISODate.compareDates(r.performedAt, recharge.performedAt),
-			)
+			.map((r) => ({ ...r, performedAt: new ISODate(r.performedAt) }))
+			.filter((r) => ISODate.compareDates(r.performedAt, rechargeDate))
 			.map((r) => r.amount)
 			.reduce((accumulator, amount) => {
 				return accumulator + amount;

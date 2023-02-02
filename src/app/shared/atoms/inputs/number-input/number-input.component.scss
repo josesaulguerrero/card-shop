@@ -1,0 +1,9 @@
+.number-input {
+	padding: 5px 10px;
+	border-radius: inherit;
+	border: inherit;
+}
+
+.number-input:focus-within {
+	outline: 2px solid rgb(31, 64, 249);
+}

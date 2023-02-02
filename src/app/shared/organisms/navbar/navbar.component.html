@@ -8,7 +8,7 @@
 			[height]="40"
 		></app-image>
 	</a>
-	<section class="actions">
+	<section class="actions" *ngIf="user">
 		<app-button
 			class="log-out"
 			(buttonClick)="onLogout()"

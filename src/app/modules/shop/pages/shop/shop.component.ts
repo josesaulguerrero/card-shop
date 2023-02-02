@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { AuthenticationService } from '../../../../modules/auth/services/authentication.service';
 import { User } from '../../../../modules/core/domain/entities/user.model';
@@ -13,19 +13,26 @@ import {
 	templateUrl: './shop.component.html',
 	styleUrls: ['./shop.component.scss'],
 })
-export class ShopComponent {
+export class ShopComponent implements OnInit {
 	public cardGroups: CardGroup[] = [];
-	public currentUser: User;
+	public currentUser!: User | null;
 
 	public constructor(
 		private readonly _dbCardsService: DbCardsService,
 		private readonly _currentUser: CurrentUserService,
 		private readonly _authService: AuthenticationService,
-	) {
-		_dbCardsService.get().subscribe((groups) => {
+	) {}
+
+	public ngOnInit(): void {
+		this._dbCardsService.get().subscribe((groups) => {
 			this.cardGroups = groups.sort((a, b) => (a.name < b.name ? -1 : 1));
 		});
-		this.currentUser = this._currentUser.currentUser;
+
+		this._currentUser.currentUser.subscribe({
+			next: (user) => {
+				this.currentUser = user;
+			},
+		});
 	}
 
 	public onLogout(): void {

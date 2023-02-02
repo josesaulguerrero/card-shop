@@ -7,6 +7,8 @@ import { ImageComponent } from './image/image.component';
 import { TextComponent } from './text/text.component';
 import { TitleComponent } from './title/title.component';
 import { ButtonComponent } from './button/button.component';
+import { NumberInputComponent } from './inputs/number-input/number-input.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
 	declarations: [
@@ -16,8 +18,9 @@ import { ButtonComponent } from './button/button.component';
 		TitleComponent,
 		ImageComponent,
 		ButtonComponent,
+		NumberInputComponent,
 	],
-	imports: [CommonModule],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule],
 	exports: [
 		AuthButtonComponent,
 		IconComponent,
@@ -25,6 +28,7 @@ import { ButtonComponent } from './button/button.component';
 		TitleComponent,
 		ImageComponent,
 		ButtonComponent,
+		NumberInputComponent,
 	],
 })
 export class AtomsModule {}

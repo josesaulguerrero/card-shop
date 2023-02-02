@@ -9,7 +9,7 @@ import { User } from '../../../modules/core/domain/entities/user.model';
 })
 export class NavbarComponent {
 	@Input()
-	public user!: User;
+	public user!: User | null;
 
 	@Output()
 	public logout: EventEmitter<boolean>;

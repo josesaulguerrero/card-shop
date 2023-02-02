@@ -1,1 +1,20 @@
-<p>recharge works!</p>
+<form class="recharge-form" [formGroup]="rechargeForm">
+	<app-title
+		class="form-title"
+		size="medium"
+		text="Enter the amount to recharge"
+	></app-title>
+	<app-number-input
+		class="amount-input"
+		[control]="rechargeForm.get('amount')! | formControl"
+		[required]="true"
+		placeholder="Enter the amount:"
+		name="amount-input"
+	></app-number-input>
+	<app-button
+		class="form-submit"
+		text="Commit"
+		[disabled]="rechargeForm.invalid"
+		(buttonClick)="onCommitRecharge()"
+	></app-button>
+</form>

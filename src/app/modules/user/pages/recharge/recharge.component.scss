@@ -1,0 +1,27 @@
+.recharge-form {
+	width: 100%;
+	height: fit-content;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 20px;
+}
+
+.form-title {
+	width: 100%;
+	display: block;
+	margin-bottom: 10px;
+}
+
+.amount-input {
+	padding: 5px 10px;
+	border-radius: 5px;
+}
+
+.form-submit {
+	color: white;
+	padding: 5px 10px;
+	background-color: rgb(230, 140, 37);
+	border-radius: 5px;
+}
