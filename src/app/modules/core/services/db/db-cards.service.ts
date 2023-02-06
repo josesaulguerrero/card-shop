@@ -1,5 +1,5 @@
 import { collection, DocumentReference } from 'firebase/firestore';
-import * as _ from 'lodash-es';
+import { groupBy, map as mapper, toArray } from 'lodash-es';
 import { from, map, Observable } from 'rxjs';
 
 import { Injectable } from '@angular/core';
@@ -34,20 +34,25 @@ export class DbCardsService {
 	}
 
 	public get(): Observable<CardGroup[]> {
-		const getQuery = query(this.cardsCollectionRef);
+		const getQuery = query(
+			this.cardsCollectionRef,
+			where('activeForSale', '==', true),
+		);
 		return (collectionData(getQuery) as Observable<Card[]>).pipe(
-			map((cards: Card[]) => {
-				return _.chain(cards)
-					.groupBy((card) => card.name)
-					.map(
-						(value, key): CardGroup => ({
-							name: key,
-							cards: value,
-						}),
-					)
-					.value();
+			map((cards: Card[]) => DbCardsService.groupCards(cards)),
+		);
+	}
+
+	public static groupCards(cards: Card[]): CardGroup[] {
+		const groups = groupBy(cards, (card) => card.name);
+		const mappedGroups = mapper(
+			groups,
+			(value, key): CardGroup => ({
+				name: key,
+				cards: value,
 			}),
 		);
+		return toArray<CardGroup>(mappedGroups);
 	}
 
 	public getByName(name: string): Observable<CardGroup> {

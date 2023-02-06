@@ -1,0 +1,14 @@
+<app-navbar
+	class="nav-bar"
+	[user]="currentUser"
+	(logout)="onLogout()"
+></app-navbar>
+
+<section class="shop">
+	<app-purchasable-card
+		class="card"
+		*ngFor="let card of cardGroups"
+		[card]="card"
+		(cardPurchased)="onCardPurchased($event)"
+	></app-purchasable-card>
+</section>

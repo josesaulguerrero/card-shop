@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import {
+	Auth,
 	AuthProvider,
 	GithubAuthProvider,
 	GoogleAuthProvider,
+	signInWithPopup,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 
@@ -39,7 +41,6 @@ export class SignInComponent {
 
 	public signIn(provider: AuthProvider): void {
 		this.errors = [];
-
 		this._authService.signInWithPopup(provider).subscribe({
 			next: () => this.redirectToApp(),
 			error: (error) => {
@@ -56,6 +57,6 @@ export class SignInComponent {
 	}
 
 	private redirectToApp(): void {
-		// this._router.navigateByUrl('app/store');
+		this._router.navigateByUrl('shop');
 	}
 }

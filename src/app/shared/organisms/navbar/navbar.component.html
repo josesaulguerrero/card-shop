@@ -1,0 +1,28 @@
+<nav class="nav-bar">
+	<a routerLink="/">
+		<app-image
+			class="nav-bar-logo"
+			src="https://i.postimg.cc/yxHkBkxf/image.png"
+			altText="Application logo"
+			[width]="100"
+			[height]="40"
+		></app-image>
+	</a>
+	<section class="actions" *ngIf="user">
+		<app-button
+			class="log-out"
+			(buttonClick)="onLogout()"
+			text="Log out"
+		></app-button>
+		<a class="user" routerLink="/user">
+			<app-text class="user-name" [text]="user.username"></app-text>
+			<app-image
+				class="user-avatar"
+				[src]="user.avatar"
+				[altText]="user.username"
+				[width]="40"
+				[height]="40"
+			></app-image>
+		</a>
+	</section>
+</nav>

@@ -1,62 +1,74 @@
+import * as _ from 'lodash-es';
 import { from, Observable, of, switchMap, tap } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import {
 	Auth,
 	AuthProvider,
-	GithubAuthProvider,
-	GoogleAuthProvider,
 	signInWithPopup,
 	signOut,
 	User as GoogleUser,
 } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 import { User } from '../../core/domain/entities/user.model';
-import { CurrentUserService } from '../../core/services/business/current-user.service';
 import { DbUsersService } from '../../core/services/db/db-users.service';
 
-@Injectable()
+@Injectable({
+	providedIn: 'root',
+})
 export class AuthenticationService {
 	public constructor(
 		private readonly _fireAuth: Auth,
+		private readonly _router: Router,
 		private readonly _dbUsersService: DbUsersService,
-		private readonly _currentUserService: CurrentUserService,
 	) {}
+
+	public mapFirebaseUserCredentials = (
+		credentials: GoogleUser | null,
+		defaults?: Partial<User>,
+	): User => {
+		if (_.isEmpty(credentials))
+			throw new Error('The user credentials cannot be empty.');
+
+		return {
+			uid: credentials.uid,
+			avatar: credentials.photoURL ?? defaults?.avatar ?? '',
+			balance: defaults?.balance ?? 0,
+			deck: defaults?.deck ?? [],
+			email: credentials.email ?? defaults?.email ?? '',
+			recharges: defaults?.recharges ?? [],
+			username: credentials.displayName ?? defaults?.username ?? '',
+		};
+	};
 
 	public signInWithPopup(authProvider: AuthProvider): Observable<User> {
 		return from(signInWithPopup(this._fireAuth, authProvider)).pipe(
-			tap(console.log),
 			switchMap((credentials) =>
 				this.registerUserIfNotRegisteredYet(credentials.user),
 			),
 		);
 	}
 
-	private registerUserIfNotRegisteredYet(user: GoogleUser): Observable<User> {
-		return this._dbUsersService.getById(user.uid).pipe(
+	private registerUserIfNotRegisteredYet(
+		credentials: GoogleUser,
+	): Observable<User> {
+		return this._dbUsersService.getById(credentials.uid).pipe(
 			switchMap((user) => {
 				if (user) return of(user);
 
-				const newUser =
-					this._currentUserService.mapFirebaseUserCredentials(user);
+				const newUser = this.mapFirebaseUserCredentials(credentials);
 
 				return this._dbUsersService.register(newUser);
 			}),
 		);
 	}
 
-	private getAuthProviderForId(providerId: string) {
-		switch (providerId) {
-			case GoogleAuthProvider.PROVIDER_ID:
-				return GoogleAuthProvider;
-			case GithubAuthProvider.PROVIDER_ID:
-				return GithubAuthProvider;
-			default:
-				throw new Error(`No provider implemented for ${providerId}`);
-		}
-	}
-
 	public signOut(): Observable<void> {
-		return from(signOut(this._fireAuth));
+		return from(signOut(this._fireAuth)).pipe(
+			tap(() => {
+				this._router.navigateByUrl('/');
+			}),
+		);
 	}
 }

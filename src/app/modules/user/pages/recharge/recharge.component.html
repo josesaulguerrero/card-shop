@@ -1,0 +1,43 @@
+<form class="recharge-form" [formGroup]="rechargeForm">
+	<app-title
+		class="form-title"
+		size="medium"
+		text="Enter the amount to recharge"
+	></app-title>
+	<app-number-input
+		class="amount-input"
+		[control]="rechargeForm.get('amount')! | formControl"
+		[required]="true"
+		placeholder="Enter the amount:"
+		name="amount-input"
+	></app-number-input>
+	<app-button
+		class="form-submit"
+		text="Commit"
+		[disabled]="rechargeForm.invalid"
+		(buttonClick)="onCommitRecharge()"
+	></app-button>
+	<section class="errors">
+		<app-text
+			class="error"
+			*ngFor="let error of errors"
+			[text]="error"
+		></app-text>
+		<app-text
+			*ngIf="
+				rechargeForm.get('amount')?.touched &&
+				rechargeForm.get('amount')?.hasError('min')
+			"
+			class="error"
+			text="You can't make a recharge under 0 USD."
+		></app-text>
+		<app-text
+			*ngIf="
+				rechargeForm.get('amount')?.touched &&
+				rechargeForm.get('amount')?.hasError('max')
+			"
+			class="error"
+			text="You can't make a recharge over 200 USD."
+		></app-text>
+	</section>
+</form>

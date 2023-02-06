@@ -1,0 +1,15 @@
+<section class="deck" *ngIf="cards.length >= 1; else noCards">
+	<app-deck-card
+		class="deck-card"
+		*ngFor="let card of cards"
+		[card]="card"
+	></app-deck-card>
+</section>
+
+<ng-template #noCards>
+	<app-title
+		class="no-cards"
+		size="medium"
+		text="You haven't purchased any cards yet..."
+	></app-title>
+</ng-template>

@@ -1,9 +1,8 @@
-import * as _ from 'lodash-es';
-import { map, Observable, of, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, switchMap, take, tap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import { Injectable } from '@angular/core';
-import { Auth, User as GoogleUser } from '@angular/fire/auth';
+import { Auth } from '@angular/fire/auth';
 import { arrayRemove, arrayUnion } from '@angular/fire/firestore';
 
 import { Card } from '../../domain/entities/card.model';
@@ -19,136 +18,134 @@ import { RechargesService } from './recharges.service';
 	providedIn: 'root',
 })
 export class CurrentUserService {
-	private _currentUser: User | null = null;
+	private readonly _currentUser$: BehaviorSubject<User | null>;
 
 	public constructor(
 		private readonly _dbUsersService: DbUsersService,
 		private readonly _rechargesService: RechargesService,
 		private readonly _cardsService: CardsService,
 		private readonly _fireAuth: Auth,
-	) {}
+	) {
+		this._currentUser$ = new BehaviorSubject<User | null>(null);
 
-	public get currentUser(): User {
-		return (
-			this._currentUser ??
-			this.mapFirebaseUserCredentials(this._fireAuth.currentUser)
+		this._fireAuth.onIdTokenChanged((user) => {
+			this.refreshUserRef(user?.uid);
+		});
+	}
+
+	public get currentUser(): Observable<User> {
+		return this._currentUser$ as Observable<User>;
+	}
+
+	private refreshUserRef(firebaseUserUid: string | null | undefined): void {
+		if (!firebaseUserUid) return;
+
+		this._dbUsersService.getById(firebaseUserUid).subscribe({
+			next: (user) => {
+				this._currentUser$.next(user);
+			},
+		});
+	}
+
+	public addCardToDeck(card: Card): Observable<void> {
+		return this.currentUser.pipe(
+			switchMap((user) =>
+				this._dbUsersService.update(user.uid, {
+					deck: arrayUnion(card),
+				}),
+			),
 		);
 	}
 
-	public set currentUser(user: User) {
-		if (this._currentUser)
-			throw new Error(
-				'You cannot reset the current user since it already exists.',
-			);
-
-		this._currentUser = user;
-	}
-
-	public mapFirebaseUserCredentials = (
-		credentials: GoogleUser | null,
-		defaults?: Partial<User>,
-	): User => {
-		if (_.isEmpty(credentials))
-			throw new Error('The user credentials cannot be empty.');
-
-		return {
-			uid: credentials.uid,
-			avatar: credentials.photoURL ?? defaults?.avatar ?? '',
-			balance: defaults?.balance ?? 0,
-			deck: defaults?.deck ?? [],
-			email: credentials.email ?? defaults?.email ?? '',
-			recharges: defaults?.recharges ?? [],
-			username: credentials.displayName ?? defaults?.username ?? '',
-		};
-	};
-
-	public addCardToDeck(card: Card): Observable<void> {
-		return this._dbUsersService.update(this.currentUser.uid, {
-			deck: arrayUnion(card),
-		});
-	}
-
 	public removeCardFromDeck(card: Card): Observable<void> {
-		return this._dbUsersService.update(this.currentUser.uid, {
-			deck: arrayRemove(card),
-		});
+		return this.currentUser.pipe(
+			switchMap((user) =>
+				this._dbUsersService.update(user.uid, {
+					deck: arrayRemove(card),
+				}),
+			),
+		);
 	}
 
-	private rechargeBalance(amount: number): Observable<void> {
+	public rechargeBalance(amount: number): Observable<void> {
 		const recharge: Recharge = {
 			uid: uuid(),
-			performedAt: ISODate.now(),
+			performedAt: ISODate.now().ISOString,
 			amount,
 		};
-		const validRecharge =
-			this._rechargesService.userHasEnoughCreditForRecharge(
-				this.currentUser,
-				recharge,
-			);
 
-		return new Observable().pipe(
-			switchMap(() => {
+		return this.currentUser.pipe(
+			take(1),
+			tap((user) => {
+				const validRecharge =
+					this._rechargesService.userHasEnoughCreditForRecharge(
+						user,
+						recharge,
+					);
+
 				if (!validRecharge)
 					throw new Error(
 						"You don't have enough credits to perform a balance recharge.",
 					);
-
-				return this._dbUsersService.update(this.currentUser.uid, {
-					balance: this.currentUser.balance + recharge.amount,
-					recharges: arrayUnion(recharge),
-				});
 			}),
+			switchMap((user) =>
+				this._dbUsersService.update(user.uid, {
+					balance: user.balance + recharge.amount,
+					recharges: arrayUnion(recharge),
+				}),
+			),
 		);
 	}
 
 	public subtractFromBalance(amount: number): Observable<void> {
-		return of(amount).pipe(
-			switchMap((amount) => {
-				if (this.currentUser.balance < amount)
+		return this.currentUser.pipe(
+			tap(({ balance }) => {
+				if (balance < amount)
 					throw new Error(
 						'Your balance is not enough to subtract this amount.',
 					);
-
-				return this._dbUsersService.update(this.currentUser.uid, {
-					balance: this.currentUser.balance - amount,
-				});
 			}),
+			switchMap(({ balance, uid }) =>
+				this._dbUsersService.update(uid, {
+					balance: balance - amount,
+				}),
+			),
 		);
 	}
 
 	public buyCard(card: Card): Observable<void> {
-		return of(card).pipe(
-			map((card) => {
-				if (!card.activeForSale)
-					throw new Error('This card is not available for sale.');
-				if (this.currentUser.balance < card.price)
-					throw new Error(
-						'Your balance is not enough to buy this card.',
-					);
-				return card;
-			}),
-			switchMap((card) => {
+		return this.currentUser.pipe(
+			switchMap((user) => {
+				this.performBuyValidations(user.balance, card);
+
 				return this._cardsService.setInactiveForSale(card.uid).pipe(
-					switchMap(() =>
-						this._cardsService.addHistoryChange(card.uid, {
-							uid: uuid(),
-							owner: this.currentUser,
-							type: HistoryType.GIFT,
-						}),
-					),
-					switchMap(() => this.addCardToDeck(card)),
+					// switchMap(() =>
+					// 	this._cardsService.addHistoryChange(card.uid, {
+					// 		uid: uuid(),
+					// 		owner: user,
+					// 		type: HistoryType.GIFT,
+					// 	}),
+					// ),
 					switchMap(() => this.subtractFromBalance(card.price)),
+					switchMap(() => this.addCardToDeck(card)),
 				);
 			}),
 		);
 	}
 
+	private performBuyValidations(userBalance: number, card: Card): void {
+		if (!card.activeForSale)
+			throw new Error('This card is not available for sale.');
+		if (userBalance < card.price)
+			throw new Error('Your balance is not enough to buy this card.');
+	}
+
 	public giftCardTo(card: Card, recipientUid: string): Observable<void> {
-		return this.removeCardFromDeck(card).pipe(
-			switchMap(() => {
+		return this.currentUser.pipe(
+			switchMap((user) => {
 				return this._cardsService.addHistoryChange(card.uid, {
 					uid: uuid(),
-					owner: this.currentUser,
+					owner: user,
 					type: HistoryType.GIFT,
 				});
 			}),
