@@ -8,7 +8,6 @@ import {
 	CollectionReference,
 	doc,
 	Firestore,
-	limit,
 	query,
 	UpdateData,
 	updateDoc,

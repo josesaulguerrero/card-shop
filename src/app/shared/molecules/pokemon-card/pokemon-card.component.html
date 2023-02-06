@@ -8,19 +8,7 @@
 	></app-image>
 	<app-title class="card-name" size="small" [text]="pokemon.name"></app-title>
 	<app-text class="card-description" [text]="pokemon.description"></app-text>
-	<section class="purchase-details">
-		<app-text
-			class="card-price"
-			text="{{ price | currency : 'USD' }}"
-		></app-text>
-		<app-text
-			class="card-availability"
-			text="{{ available }} available "
-		></app-text>
-	</section>
-	<app-button
-		class="card-button"
-		(buttonClick)="onBuyCard()"
-		text="Buy card"
-	></app-button>
+	<!-- Injectable content -->
+	<ng-content select="section.card-extra-details"></ng-content>
+	<ng-content select="section.card-extra-actions"></ng-content>
 </article>

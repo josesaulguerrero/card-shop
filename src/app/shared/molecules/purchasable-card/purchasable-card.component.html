@@ -1,0 +1,19 @@
+<app-pokemon-card class="card" [card]="card">
+	<section class="card-extra-details">
+		<app-text
+			class="card-price"
+			text="{{ price | currency : 'USD' }}"
+		></app-text>
+		<app-text
+			class="card-availability"
+			text="{{ available }} available "
+		></app-text>
+	</section>
+	<section class="card-extra-actions">
+		<app-button
+			class="card-button"
+			(buttonClick)="onBuyCard()"
+			text="Buy card"
+		></app-button>
+	</section>
+</app-pokemon-card>
