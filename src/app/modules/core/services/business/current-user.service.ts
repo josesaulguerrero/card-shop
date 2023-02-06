@@ -105,11 +105,11 @@ export class CurrentUserService {
 						'Your balance is not enough to subtract this amount.',
 					);
 			}),
-			switchMap(({ balance, uid }) => {
-				return this._dbUsersService.update(uid, {
+			switchMap(({ balance, uid }) =>
+				this._dbUsersService.update(uid, {
 					balance: balance - amount,
-				});
-			}),
+				}),
+			),
 		);
 	}
 
@@ -119,15 +119,15 @@ export class CurrentUserService {
 				this.performBuyValidations(user.balance, card);
 
 				return this._cardsService.setInactiveForSale(card.uid).pipe(
-					switchMap(() =>
-						this._cardsService.addHistoryChange(card.uid, {
-							uid: uuid(),
-							owner: user,
-							type: HistoryType.GIFT,
-						}),
-					),
-					switchMap(() => this.addCardToDeck(card)),
+					// switchMap(() =>
+					// 	this._cardsService.addHistoryChange(card.uid, {
+					// 		uid: uuid(),
+					// 		owner: user,
+					// 		type: HistoryType.GIFT,
+					// 	}),
+					// ),
 					switchMap(() => this.subtractFromBalance(card.price)),
+					switchMap(() => this.addCardToDeck(card)),
 				);
 			}),
 		);

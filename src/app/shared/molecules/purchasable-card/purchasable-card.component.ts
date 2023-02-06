@@ -1,8 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { CardGroup } from '../../../modules/core/services/db/db-cards.service';
 import { Card } from '../../../modules/core/domain/entities/card.model';
-import { CurrentUserService } from 'src/app/modules/core/services/business/current-user.service';
 
 @Component({
 	selector: 'app-purchasable-card',
@@ -13,7 +12,12 @@ export class PurchasableCardComponent {
 	@Input()
 	public card!: CardGroup;
 
-	public constructor(private readonly _currentUser: CurrentUserService) {}
+	@Output()
+	public cardPurchased: EventEmitter<Card>;
+
+	public constructor() {
+		this.cardPurchased = new EventEmitter();
+	}
 
 	public get pokemon(): Card {
 		return this.card.cards[0];
@@ -26,6 +30,6 @@ export class PurchasableCardComponent {
 	}
 
 	public onBuyCard(): void {
-		this._currentUser.buyCard(this.card.cards.pop() as Card).subscribe();
+		this.cardPurchased.emit(this.card.cards[0]);
 	}
 }

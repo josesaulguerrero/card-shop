@@ -9,5 +9,6 @@
 		class="card"
 		*ngFor="let card of cardGroups"
 		[card]="card"
+		(cardPurchased)="onCardPurchased($event)"
 	></app-purchasable-card>
 </section>

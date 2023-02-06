@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AuthenticationService } from '../../../../modules/auth/services/authentication.service';
+import { Card } from '../../../../modules/core/domain/entities/card.model';
 import { User } from '../../../../modules/core/domain/entities/user.model';
 import { CurrentUserService } from '../../../../modules/core/services/business/current-user.service';
 import {
@@ -33,6 +34,10 @@ export class ShopComponent implements OnInit {
 				this.currentUser = user;
 			},
 		});
+	}
+
+	public onCardPurchased(card: Card): void {
+		this._currentUser.buyCard(card).subscribe();
 	}
 
 	public onLogout(): void {
