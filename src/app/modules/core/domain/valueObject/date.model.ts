@@ -14,9 +14,10 @@ export class ISODate {
 	}
 
 	public static compareDates(dateOne: ISODate, dateTwo: ISODate): boolean {
-		return (
-			this.toDate(dateOne.ISOString).getDate() ===
-			this.toDate(dateTwo.ISOString).getDate()
-		);
+		return dateOne.toLocaleDateString() === dateTwo.toLocaleDateString();
+	}
+
+	public toLocaleDateString(): string {
+		return ISODate.toDate(this.ISOString).toLocaleDateString('es-CO');
 	}
 }

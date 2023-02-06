@@ -24,12 +24,18 @@
 			[text]="error"
 		></app-text>
 		<app-text
-			*ngIf="rechargeForm.touched && rechargeForm.hasError('min')"
+			*ngIf="
+				rechargeForm.get('amount')?.touched &&
+				rechargeForm.get('amount')?.hasError('min')
+			"
 			class="error"
 			text="You can't make a recharge under 0 USD."
 		></app-text>
 		<app-text
-			*ngIf="rechargeForm.touched && rechargeForm.hasError('max')"
+			*ngIf="
+				rechargeForm.get('amount')?.touched &&
+				rechargeForm.get('amount')?.hasError('max')
+			"
 			class="error"
 			text="You can't make a recharge over 200 USD."
 		></app-text>

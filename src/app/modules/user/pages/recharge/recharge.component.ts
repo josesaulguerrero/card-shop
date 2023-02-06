@@ -43,8 +43,7 @@ export class RechargeComponent implements OnInit {
 					this.rechargeForm.reset();
 				},
 				error: (error: Error) => {
-					// this.errors = [];
-					console.log(error);
+					this.errors = [];
 					this.errors.push(error.message);
 				},
 			});
