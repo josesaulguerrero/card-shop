@@ -39,7 +39,6 @@ export class SignInComponent {
 
 	public signIn(provider: AuthProvider): void {
 		this.errors = [];
-
 		this._authService.signInWithPopup(provider).subscribe({
 			next: () => this.redirectToApp(),
 			error: (error) => {

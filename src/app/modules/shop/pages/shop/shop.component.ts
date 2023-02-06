@@ -30,7 +30,6 @@ export class ShopComponent implements OnInit {
 
 		this._currentUser.currentUser.subscribe({
 			next: (user) => {
-				console.log(user);
 				this.currentUser = user;
 			},
 		});

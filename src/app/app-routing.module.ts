@@ -1,17 +1,16 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-
 import {
 	canActivate,
-	redirectUnauthorizedTo,
 	redirectLoggedInTo,
+	redirectUnauthorizedTo,
 } from '@angular/fire/auth-guard';
+import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
 	{
 		path: '',
 		pathMatch: 'full',
-		redirectTo: 'auth',
+		redirectTo: 'auth/sign-in',
 	},
 	{
 		path: 'auth',
@@ -39,7 +38,7 @@ const routes: Routes = [
 	},
 	{
 		path: '**',
-		redirectTo: 'auth',
+		redirectTo: 'auth/sign-in',
 	},
 ];
 
