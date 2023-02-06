@@ -115,15 +115,9 @@ export class CurrentUserService {
 
 	public buyCard(card: Card): Observable<void> {
 		return this.currentUser.pipe(
-			tap(({ balance }) => {
-				if (!card.activeForSale)
-					throw new Error('This card is not available for sale.');
-				if (balance < card.price)
-					throw new Error(
-						'Your balance is not enough to buy this card.',
-					);
-			}),
 			switchMap((user) => {
+				this.performBuyValidations(user.balance, card);
+
 				return this._cardsService.setInactiveForSale(card.uid).pipe(
 					switchMap(() =>
 						this._cardsService.addHistoryChange(card.uid, {
@@ -137,6 +131,13 @@ export class CurrentUserService {
 				);
 			}),
 		);
+	}
+
+	private performBuyValidations(userBalance: number, card: Card): void {
+		if (!card.activeForSale)
+			throw new Error('This card is not available for sale.');
+		if (userBalance < card.price)
+			throw new Error('Your balance is not enough to buy this card.');
 	}
 
 	public giftCardTo(card: Card, recipientUid: string): Observable<void> {
