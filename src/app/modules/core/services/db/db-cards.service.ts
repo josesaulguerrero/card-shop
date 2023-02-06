@@ -39,18 +39,20 @@ export class DbCardsService {
 			where('activeForSale', '==', true),
 		);
 		return (collectionData(getQuery) as Observable<Card[]>).pipe(
-			map((cards: Card[]) => {
-				const groups = groupBy(cards, (card) => card.name);
-				const mappedGroups = mapper(
-					groups,
-					(value, key): CardGroup => ({
-						name: key,
-						cards: value,
-					}),
-				);
-				return toArray<CardGroup>(mappedGroups);
+			map((cards: Card[]) => DbCardsService.groupCards(cards)),
+		);
+	}
+
+	public static groupCards(cards: Card[]): CardGroup[] {
+		const groups = groupBy(cards, (card) => card.name);
+		const mappedGroups = mapper(
+			groups,
+			(value, key): CardGroup => ({
+				name: key,
+				cards: value,
 			}),
 		);
+		return toArray<CardGroup>(mappedGroups);
 	}
 
 	public getByName(name: string): Observable<CardGroup> {

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
-import { User } from '../../../../modules/core/domain/entities/user.model';
 import { CurrentUserService } from '../../../../modules/core/services/business/current-user.service';
-import { CardGroup } from 'src/app/modules/core/services/db/db-cards.service';
-import { CardsService } from 'src/app/modules/core/services/business/cards.service';
+import {
+	CardGroup,
+	DbCardsService,
+} from 'src/app/modules/core/services/db/db-cards.service';
 
 @Component({
 	selector: 'app-deck',
@@ -18,10 +19,11 @@ export class DeckComponent implements OnInit {
 	}
 
 	public ngOnInit(): void {
-		// this._currentUser.currentUser.subscribe({
-		// 	next: (user) => {
-		// 		this.cards = CardsService
-		// 	},
-		// });
+		this._currentUser.currentUser.subscribe({
+			next: (user) => {
+				if (!user) return;
+				this.cards = DbCardsService.groupCards(user.deck);
+			},
+		});
 	}
 }

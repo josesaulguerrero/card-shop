@@ -10,4 +10,8 @@ import { CardGroup } from '../../../modules/core/services/db/db-cards.service';
 export class DeckCardComponent {
 	@Input()
 	public card!: CardGroup;
+
+	public get amount(): number {
+		return this.card.cards.length;
+	}
 }
