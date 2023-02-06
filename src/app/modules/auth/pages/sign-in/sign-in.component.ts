@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import {
+	Auth,
 	AuthProvider,
 	GithubAuthProvider,
 	GoogleAuthProvider,
+	signInWithPopup,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 

@@ -10,7 +10,7 @@ import { AuthenticationService } from './services/authentication.service';
 
 @NgModule({
 	declarations: [SignInComponent],
-	providers: [AuthenticationService],
+	providers: [],
 	imports: [
 		CommonModule,
 		AuthRoutingModule,

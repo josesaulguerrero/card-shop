@@ -14,7 +14,9 @@ import { Router } from '@angular/router';
 import { User } from '../../core/domain/entities/user.model';
 import { DbUsersService } from '../../core/services/db/db-users.service';
 
-@Injectable()
+@Injectable({
+	providedIn: 'root',
+})
 export class AuthenticationService {
 	public constructor(
 		private readonly _fireAuth: Auth,
