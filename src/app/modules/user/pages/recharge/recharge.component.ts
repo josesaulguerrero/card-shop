@@ -36,14 +36,17 @@ export class RechargeComponent implements OnInit {
 	public onCommitRecharge(): void {
 		if (this.rechargeForm.invalid) return;
 
+		this.rechargeForm.disable();
 		this._currentUser
 			.rechargeBalance(this.rechargeForm.value['amount'])
 			.subscribe({
 				next: () => {
+					this.rechargeForm.enable();
 					this.rechargeForm.reset();
 				},
 				error: (error: Error) => {
 					this.errors = [];
+					this.rechargeForm.enable();
 					this.errors.push(error.message);
 				},
 			});

@@ -1,9 +1,8 @@
-import * as _ from 'lodash-es';
-import { Observable, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, switchMap, take, tap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import { Injectable } from '@angular/core';
-import { Auth, User as GoogleUser } from '@angular/fire/auth';
+import { Auth } from '@angular/fire/auth';
 import { arrayRemove, arrayUnion } from '@angular/fire/firestore';
 
 import { Card } from '../../domain/entities/card.model';
@@ -19,7 +18,7 @@ import { RechargesService } from './recharges.service';
 	providedIn: 'root',
 })
 export class CurrentUserService {
-	public currentUser: Observable<User>;
+	private readonly _currentUser$: BehaviorSubject<User | null>;
 
 	public constructor(
 		private readonly _dbUsersService: DbUsersService,
@@ -27,28 +26,26 @@ export class CurrentUserService {
 		private readonly _cardsService: CardsService,
 		private readonly _fireAuth: Auth,
 	) {
-		this.currentUser = _dbUsersService.getById(
-			this._fireAuth.currentUser?.uid as string,
-		) as Observable<User>;
+		this._currentUser$ = new BehaviorSubject<User | null>(null);
+
+		this._fireAuth.onIdTokenChanged((user) => {
+			this.refreshUserRef(user?.uid);
+		});
 	}
 
-	public mapFirebaseUserCredentials = (
-		credentials: GoogleUser | null,
-		defaults?: Partial<User>,
-	): User => {
-		if (_.isEmpty(credentials))
-			throw new Error('The user credentials cannot be empty.');
+	public get currentUser(): Observable<User> {
+		return this._currentUser$ as Observable<User>;
+	}
 
-		return {
-			uid: credentials.uid,
-			avatar: credentials.photoURL ?? defaults?.avatar ?? '',
-			balance: defaults?.balance ?? 0,
-			deck: defaults?.deck ?? [],
-			email: credentials.email ?? defaults?.email ?? '',
-			recharges: defaults?.recharges ?? [],
-			username: credentials.displayName ?? defaults?.username ?? '',
-		};
-	};
+	private refreshUserRef(firebaseUserUid: string | null | undefined): void {
+		if (!firebaseUserUid) return;
+
+		this._dbUsersService.getById(firebaseUserUid).subscribe({
+			next: (user) => {
+				this._currentUser$.next(user);
+			},
+		});
+	}
 
 	public addCardToDeck(card: Card): Observable<void> {
 		return this.currentUser.pipe(

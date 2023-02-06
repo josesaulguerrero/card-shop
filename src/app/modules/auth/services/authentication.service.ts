@@ -1,3 +1,4 @@
+import * as _ from 'lodash-es';
 import { from, Observable, of, switchMap, tap } from 'rxjs';
 
 import { Injectable } from '@angular/core';
@@ -8,11 +9,10 @@ import {
 	signOut,
 	User as GoogleUser,
 } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 import { User } from '../../core/domain/entities/user.model';
-import { CurrentUserService } from '../../core/services/business/current-user.service';
 import { DbUsersService } from '../../core/services/db/db-users.service';
-import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthenticationService {
@@ -20,8 +20,25 @@ export class AuthenticationService {
 		private readonly _fireAuth: Auth,
 		private readonly _router: Router,
 		private readonly _dbUsersService: DbUsersService,
-		private readonly _currentUserService: CurrentUserService,
 	) {}
+
+	public mapFirebaseUserCredentials = (
+		credentials: GoogleUser | null,
+		defaults?: Partial<User>,
+	): User => {
+		if (_.isEmpty(credentials))
+			throw new Error('The user credentials cannot be empty.');
+
+		return {
+			uid: credentials.uid,
+			avatar: credentials.photoURL ?? defaults?.avatar ?? '',
+			balance: defaults?.balance ?? 0,
+			deck: defaults?.deck ?? [],
+			email: credentials.email ?? defaults?.email ?? '',
+			recharges: defaults?.recharges ?? [],
+			username: credentials.displayName ?? defaults?.username ?? '',
+		};
+	};
 
 	public signInWithPopup(authProvider: AuthProvider): Observable<User> {
 		return from(signInWithPopup(this._fireAuth, authProvider)).pipe(
@@ -38,10 +55,7 @@ export class AuthenticationService {
 			switchMap((user) => {
 				if (user) return of(user);
 
-				const newUser =
-					this._currentUserService.mapFirebaseUserCredentials(
-						credentials,
-					);
+				const newUser = this.mapFirebaseUserCredentials(credentials);
 
 				return this._dbUsersService.register(newUser);
 			}),
