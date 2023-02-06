@@ -38,7 +38,6 @@ export class DbCardsService {
 		const getQuery = query(
 			this.cardsCollectionRef,
 			where('activeForSale', '==', true),
-			limit(10),
 		);
 		return (collectionData(getQuery) as Observable<Card[]>).pipe(
 			map((cards: Card[]) => {

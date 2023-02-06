@@ -1,4 +1,4 @@
-<article class="pokemon-card">
+<article class="pokemon-card" *ngIf="available >= 1">
 	<app-image
 		class="card-image"
 		[src]="pokemon.imageUrl"
@@ -8,10 +8,16 @@
 	></app-image>
 	<app-title class="card-name" size="small" [text]="pokemon.name"></app-title>
 	<app-text class="card-description" [text]="pokemon.description"></app-text>
-	<app-text
-		class="card-available"
-		text="{{ available }} available "
-	></app-text>
+	<section class="purchase-details">
+		<app-text
+			class="card-price"
+			text="{{ price | currency : 'USD' }}"
+		></app-text>
+		<app-text
+			class="card-availability"
+			text="{{ available }} available "
+		></app-text>
+	</section>
 	<app-button
 		class="card-button"
 		(buttonClick)="onBuyCard()"
